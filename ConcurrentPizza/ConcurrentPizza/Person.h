@@ -12,6 +12,7 @@ public:
 	virtual ~Person();
 	void activate(PizzaShop& pizzaShop);
 	int getId() const;
+	void serveCustomer();
 private:
 	const int mId;
 	static std::atomic<int> sGlobalPersonIdGenerator;

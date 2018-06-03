@@ -26,9 +26,18 @@ void Person::activate(PizzaShop& pizzaShop)
 	std::unique_lock<std::mutex> lk(mPersonMutex);
 
 	mIsBeingServed_CV.wait(lk, [this] {return mIsBeingServed; });
+
+	printf("Yay! I am #%d and I am being served at PizzaShop#%d\n",
+		mId, pizzaShop.getId());
 }
 
 int Person::getId() const
 {
 	return mId;
+}
+
+void Person::serveCustomer()
+{
+	mIsBeingServed = true;
+	mIsBeingServed_CV.notify_one();
 }
