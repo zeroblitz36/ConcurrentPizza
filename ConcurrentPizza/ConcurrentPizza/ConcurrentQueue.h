@@ -1,14 +1,12 @@
 #pragma once
-#include <queue>
-#include <mutex>
-#include <optional>
+#include "stdafx.h"
 
 template <class T>
 class ConcurrentQueue
 {
 public:
 	ConcurrentQueue() {};
-	virtual ~ConcurrentQueue() {};
+	~ConcurrentQueue() {};
 
 	int push(const T& t) {
 		std::lock_guard<std::mutex> guard(mQueueMutex);

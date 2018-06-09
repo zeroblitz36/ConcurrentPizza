@@ -88,7 +88,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_ENABLE_ATOMIC_ALIGNMENT_FIX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -152,7 +152,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ConcurrentQueue.h" />
-    <ClInclude Include="JobQueue.h" />
+    <ClInclude Include="ConcurrentSet.h" />
+    <ClInclude Include="Oven.h" />
     <ClInclude Include="Person.h" />
     <ClInclude Include="Pizza.h" />
     <ClInclude Include="PizzaShop.h" />
@@ -161,7 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConcurrentPizza.cpp" />
-    <ClCompile Include="JobQueue.cpp" />
+    <ClCompile Include="Oven.cpp" />
     <ClCompile Include="Person.cpp" />
     <ClCompile Include="Pizza.cpp" />
     <ClCompile Include="PizzaShop.cpp" />

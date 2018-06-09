@@ -14,20 +14,24 @@ enum PizzaStatus {
 	Done
 };
 
+class Person;
+
 class Pizza
 {
 public:
-	Pizza(PizzaType pizzaType);
-	virtual ~Pizza();
+	Pizza(Person& personRef, PizzaType pizzaType);
+	~Pizza();
 
-	PizzaType getPizzaType();
+	PizzaType getPizzaType() const;
+	PizzaStatus getPizzaStatus();
 
 	void putInOven();
 	void takeOutOfOven();
+	Person& getPersonRef() const;
 protected:
 	const PizzaType mPizzaType;
 	PizzaStatus mPizzaStatus;
-
-
+	Person& mPersonRef;
+	std::mutex mMutex;
 };
 

@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "Person.h"
 #include "PizzaShop.h"
-#include <chrono>
-#include <random>
-#include <time.h>
 
 std::atomic<int> Person::sGlobalPersonIdGenerator;
 
@@ -46,19 +43,23 @@ void Person::sitDown()
 {
 	std::unique_lock<std::mutex> lk(mPersonMutex);
 	mIsSittingDown = true;
+	lk.unlock();
 	mIsSittingDown_CV.notify_one();
 }
 
-void Person::setPizza(std::unique_ptr<Pizza> pizzaPointer)
+void Person::setPizza(std::shared_ptr<Pizza> pizzaPtr)
 {
 	std::unique_lock<std::mutex> lk(mPersonMutex);
-	mpPizza = std::move(pizzaPointer);
+	mPizzaPtr = pizzaPtr;
+
+	assert(nullptr != mPizzaPtr);
+	assert(mPizzaType.has_value() && mPizzaType.value() == mPizzaPtr->getPizzaType());
 
 	printf("I am Person %d, and I am happy that I received my pizza(%d)\n",
-		mId,(int)mpPizza->getPizzaType());
+		mId,(int)(mPizzaPtr->getPizzaType()));
 }
 
-void Person::choosePizza(PizzaShop & pizzaShop)
+void Person::choosePizza(PizzaShop& pizzaShop)
 {
 	std::unique_lock<std::mutex> lk(mPersonMutex);
 
@@ -67,7 +68,7 @@ void Person::choosePizza(PizzaShop & pizzaShop)
 	std::this_thread::sleep_for(1s);
 
 	std::default_random_engine pizzaRandomizer((unsigned)time(0));
-	PizzaType pizzaType = (PizzaType)(pizzaRandomizer()%PIZZA_TYPE_COUNT);
+	mPizzaType = (PizzaType)(pizzaRandomizer()%PIZZA_TYPE_COUNT);
 
-	pizzaShop.startPizzaOrderForPerson(*this, pizzaType);
+	pizzaShop.startPizzaOrderForPerson(*this, mPizzaType.value());
 }

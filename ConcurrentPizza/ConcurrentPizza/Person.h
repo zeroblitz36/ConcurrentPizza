@@ -1,21 +1,17 @@
 #pragma once
-#include "JobQueue.h"
+#include "stdafx.h"
 #include "Pizza.h"
-#include <atomic>
-#include <memory>
-
 class PizzaShop;
 
-class Person :
-	public JobQueue
+class Person
 {
 public:
 	Person();
-	virtual ~Person();
+	~Person();
 	void activate(PizzaShop& pizzaShop);
 	int getId() const;
 	void sitDown();
-	void setPizza(std::unique_ptr<Pizza> pizzaPointer);
+	void setPizza(std::shared_ptr<Pizza> pizzaPtr);
 protected:
 	void choosePizza(PizzaShop& pizzaShop);
 private:
@@ -25,6 +21,6 @@ private:
 	bool mIsSittingDown;
 	std::condition_variable mIsSittingDown_CV;
 
-	std::unique_ptr<Pizza> mpPizza;
+	std::optional<PizzaType> mPizzaType;
+	std::shared_ptr<Pizza> mPizzaPtr;
 };
-

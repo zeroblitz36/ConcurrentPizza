@@ -1,34 +1,38 @@
 #pragma once
-#include "JobQueue.h"
+#include "stdafx.h"
 #include "ConcurrentQueue.h"
+#include "ConcurrentSet.h"
 #include "Pizza.h"
-#include <functional>
-#include <atomic>
+#include "Person.h"
+#include "Oven.h"
 
-class Person;
-
-class PizzaShop :
-	public JobQueue
+class PizzaShop
 {
-	typedef std::reference_wrapper<Person> PersonRef;
 public:
 	PizzaShop();
-	virtual ~PizzaShop();
+	~PizzaShop();
 	
 	int getId();
 	void activate();
-	void addPersonToQueue(PersonRef person);
-	void startPizzaOrderForPerson(PersonRef person, PizzaType pizzaType);
+	void addPersonToQueue(Person& person);
+	void startPizzaOrderForPerson(Person& person, PizzaType pizzaType);
+	void addFinishedPizza(std::shared_ptr<Pizza> pizzaPtr);
+	void addAvailableOven(Oven& oven);
 protected:
 
-	ConcurrentQueue<PersonRef> mPersonQueue;
+	ConcurrentQueue<std::reference_wrapper<Person>> mPersonQueue;
 
 	struct PizzaOrder{
-		PersonRef mPerson;
+		std::reference_wrapper<Person> mPerson;
 		PizzaType mPizzaType;
 	};
 	ConcurrentQueue<PizzaOrder> mPizzaOrderQueue;
 
+	ConcurrentQueue <std::shared_ptr<Pizza>> mFinishedPizzasQueue;
+
+	std::vector <std::thread> mOvenThreads;
+
+	ConcurrentQueue<std::reference_wrapper<Oven>> mFreeOvenCollection;
 private:
 	const int mId;
 	static std::atomic<int> sGlobalPizzaShopIdGenerator;
