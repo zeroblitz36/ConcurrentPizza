@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Pizza.h"
+#include "Person.h"
 
 Pizza::Pizza(Person& personRef, PizzaType pizzaType)
 	: mPizzaType(pizzaType)
@@ -11,6 +12,9 @@ Pizza::Pizza(Person& personRef, PizzaType pizzaType)
 
 Pizza::~Pizza()
 {
+	printf("Pizza deconstructor was called=> type=%d personId=%d\n",
+		mPizzaType,
+		mPersonRef.getId());
 }
 
 PizzaType Pizza::getPizzaType() const
@@ -27,14 +31,14 @@ PizzaStatus Pizza::getPizzaStatus()
 void Pizza::putInOven()
 {
 	std::lock_guard<std::mutex> lk(mMutex);
-	assert(mPizzaStatus == JustDough);
+	assert(JustDough == mPizzaStatus);
 	mPizzaStatus = CookingInOven;
 }
 
 void Pizza::takeOutOfOven()
 {
 	std::lock_guard<std::mutex> lk(mMutex);
-	assert(mPizzaStatus == CookingInOven);
+	assert(CookingInOven == mPizzaStatus);
 	mPizzaStatus = Done;
 }
 

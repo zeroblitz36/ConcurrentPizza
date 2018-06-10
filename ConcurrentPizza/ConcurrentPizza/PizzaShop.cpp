@@ -26,7 +26,7 @@ int PizzaShop::getId()
 void PizzaShop::activate()
 {
 	std::unique_lock<std::mutex> lk(mPizzaShopMutex);
-	printf("The pizza shop #%d is now open for business and now waiting for people to come\n",
+	printf("The PizzaShop #%d is now open for business and now waiting for people to come\n",
 		mId);
 
 	for (int i = 0; i < 5; i++) {
@@ -36,8 +36,8 @@ void PizzaShop::activate()
 		}));
 	}
 
+	using namespace std::chrono_literals;
 	while (true) {
-		printf("Waiting for a customer to join the queue...\n");
 		mIsThereAnythingToDo_CV.wait(lk, [this] {return 
 			(!mPersonQueue.isEmpty()) ||
 			(!mPizzaOrderQueue.isEmpty() && !mFreeOvenCollection.isEmpty()) ||
@@ -48,7 +48,7 @@ void PizzaShop::activate()
 		{
 			printf("A person has joined !\n");
 			std::optional<std::reference_wrapper<Person>> p1 = mPersonQueue.getAndPop();
-
+			
 			assert(p1.has_value());
 
 			std::reference_wrapper<Person> p1ref = p1.value().get();

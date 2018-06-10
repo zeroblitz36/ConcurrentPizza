@@ -19,17 +19,17 @@ Person::~Person()
 void Person::activate(PizzaShop& pizzaShop)
 {
 	{
-	printf("I am Person #%d and I am going to join the queue at PizzaShop#%d\n",
-		mId, pizzaShop.getId());
+		printf("I am Person #%d and I am going to join the queue at PizzaShop#%d\n",
+			mId, pizzaShop.getId());
 
-	pizzaShop.addPersonToQueue(std::ref(*this));
+		pizzaShop.addPersonToQueue(std::ref(*this));
 
-	std::unique_lock<std::mutex> lk(mPersonMutex);
+		std::unique_lock<std::mutex> lk(mPersonMutex);
 
-	mIsSittingDown_CV.wait(lk, [this] {return mIsSittingDown; });
+		mIsSittingDown_CV.wait(lk, [this] {return mIsSittingDown; });
 
-	printf("Yay! I am #%d and I am being served at PizzaShop#%d\n",
-		mId, pizzaShop.getId());
+		printf("Yay! I am Person #%d and I have received a seat at PizzaShop #%d\n",
+			mId, pizzaShop.getId());
 	}
 	choosePizza(pizzaShop);
 }
@@ -57,6 +57,8 @@ void Person::setPizza(std::shared_ptr<Pizza> pizzaPtr)
 
 	printf("I am Person %d, and I am happy that I received my pizza(%d)\n",
 		mId,(int)(mPizzaPtr->getPizzaType()));
+
+	mPizzaPtr = nullptr;
 }
 
 void Person::choosePizza(PizzaShop& pizzaShop)
@@ -66,6 +68,8 @@ void Person::choosePizza(PizzaShop& pizzaShop)
 	using namespace std::chrono_literals;
 	printf("I will wait a bit before deciding what Pizza I want\n");
 	std::this_thread::sleep_for(1s);
+	
+	assert(!mPizzaType.has_value());
 
 	std::default_random_engine pizzaRandomizer((unsigned)time(0));
 	mPizzaType = (PizzaType)(pizzaRandomizer()%PIZZA_TYPE_COUNT);

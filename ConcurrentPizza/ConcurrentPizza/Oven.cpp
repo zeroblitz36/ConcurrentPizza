@@ -6,7 +6,7 @@ std::atomic<int> Oven::sGlobalOvenIdGenerator;
 
 Oven::Oven(PizzaShop& pizzaShopRef)
 	: mPizzaShopRef(pizzaShopRef)
-	, mId(sGlobalOvenIdGenerator)
+	, mId(sGlobalOvenIdGenerator++)
 {
 
 }
@@ -51,7 +51,7 @@ void Oven::activate()
 			return nullptr != mpPizza;
 		});
 
-		assert(mpPizza->getPizzaStatus() == PizzaStatus::JustDough);
+		assert(PizzaStatus::JustDough == mpPizza->getPizzaStatus());
 
 		//it's safe to start working on the pizza
 		using namespace std::chrono_literals;
@@ -60,8 +60,11 @@ void Oven::activate()
 		std::this_thread::sleep_for(250ms);
 		mpPizza->takeOutOfOven();
 
-		printf("Over #%d sending pizza back to PizzaShop #%d\n",
-			mId, mPizzaShopRef.getId());
+		printf("Oven #%d is sending Pizza(%d) back to PizzaShop #%d\n",
+			mId,
+			mpPizza->getPizzaType(),
+			mPizzaShopRef.getId());
+
 		mPizzaShopRef.addFinishedPizza(mpPizza);
 		mpPizza = nullptr;
 	}
