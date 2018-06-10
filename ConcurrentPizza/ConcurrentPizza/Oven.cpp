@@ -41,7 +41,8 @@ void Oven::activate()
 	std::unique_lock<std::mutex> lk(mOvenMutex);
 
 	while (true) {
-		printf("Announce PizzaShop #%d that oven #%d is free to use...\n"
+		printf("[Oven %d] Announce PizzaShop #%d that oven #%d is free to use...\n"
+			, mId
 			, mPizzaShopRef.getId()
 			, mId);
 
@@ -60,7 +61,8 @@ void Oven::activate()
 		std::this_thread::sleep_for(250ms);
 		mpPizza->takeOutOfOven();
 
-		printf("Oven #%d is sending Pizza(%d) back to PizzaShop #%d\n",
+		printf("[Oven %d] Oven #%d is sending Pizza(%d) back to PizzaShop #%d\n",
+			mId,
 			mId,
 			mpPizza->getPizzaType(),
 			mPizzaShopRef.getId());

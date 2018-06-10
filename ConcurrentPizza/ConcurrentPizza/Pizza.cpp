@@ -12,7 +12,7 @@ Pizza::Pizza(Person& personRef, PizzaType pizzaType)
 
 Pizza::~Pizza()
 {
-	printf("Pizza deconstructor was called=> type=%d personId=%d\n",
+	printf("[Pizza] Pizza deconstructor was called=> type=%d personId=%d\n",
 		mPizzaType,
 		mPersonRef.getId());
 }
