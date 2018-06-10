@@ -71,7 +71,9 @@ void Person::choosePizza(PizzaShop& pizzaShop)
 	
 	assert(!mPizzaType.has_value());
 
-	std::default_random_engine pizzaRandomizer((unsigned)time(0));
+	std::hash<std::thread::id> threadIdHasher;
+
+	std::default_random_engine pizzaRandomizer((unsigned)clock() ^ threadIdHasher(std::this_thread::get_id()));
 	mPizzaType = (PizzaType)(pizzaRandomizer()%PIZZA_TYPE_COUNT);
 
 	pizzaShop.startPizzaOrderForPerson(*this, mPizzaType.value());
