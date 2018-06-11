@@ -10,13 +10,13 @@ public:
 	~Oven();
 
 	bool isEmpty();
-	bool startPizzaIfEmpty(std::shared_ptr<Pizza> pizzaPtr);
+	bool startPizzaIfEmpty(Pizza* pizzaPtr);
 	void activate();
 	int getId() const;
 protected:
 	
 	std::mutex mOvenMutex;
-	std::shared_ptr<Pizza> mpPizza;
+	Pizza* mpPizza;
 	std::condition_variable mIsThereAnythingToDo_CV;
 	PizzaShop& mPizzaShopRef;
 private:

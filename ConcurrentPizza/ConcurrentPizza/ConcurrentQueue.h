@@ -5,10 +5,10 @@ template <class T>
 class ConcurrentQueue
 {
 public:
-	ConcurrentQueue() {};
+	ConcurrentQueue() noexcept {};
 	~ConcurrentQueue() {};
 
-	int push(const T& t) {
+	size_t push(const T& t) {
 		std::lock_guard<std::mutex> guard(mQueueMutex);
 		mQueue.push(t);
 		return mQueue.size();

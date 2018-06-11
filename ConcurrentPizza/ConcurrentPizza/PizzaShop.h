@@ -9,14 +9,14 @@
 class PizzaShop
 {
 public:
-	PizzaShop();
+	PizzaShop() noexcept;
 	~PizzaShop();
 	
 	int getId();
 	void activate();
 	void addPersonToQueue(Person& person);
 	void startPizzaOrderForPerson(Person& person, PizzaType pizzaType);
-	void addFinishedPizza(std::shared_ptr<Pizza> pizzaPtr);
+	void addFinishedPizza(Pizza* pizzaPtr);
 	void addAvailableOven(Oven& oven);
 protected:
 
@@ -28,7 +28,7 @@ protected:
 	};
 	ConcurrentQueue<PizzaOrder> mPizzaOrderQueue;
 
-	ConcurrentQueue <std::shared_ptr<Pizza>> mFinishedPizzasQueue;
+	ConcurrentQueue <Pizza*> mFinishedPizzasQueue;
 
 	std::vector <std::thread> mOvenThreads;
 

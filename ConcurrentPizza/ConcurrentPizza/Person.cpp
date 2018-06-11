@@ -4,9 +4,10 @@
 
 std::atomic<int> Person::sGlobalPersonIdGenerator;
 
-Person::Person() 
+Person::Person() noexcept
 	: mId(sGlobalPersonIdGenerator++),
-	mIsSittingDown(false)
+	mIsSittingDown(false),
+	mPizzaPtr(nullptr)
 {
 
 }
@@ -14,6 +15,12 @@ Person::Person()
 
 Person::~Person()
 {
+	if (nullptr != mPizzaPtr)
+	{
+		printf("[Person %d] I am Person #%d and my destrucot is called while eating my pizza :(\n",
+			mId, mId);
+		delete mPizzaPtr;
+	}
 }
 
 void Person::activate(PizzaShop& pizzaShop)
@@ -47,9 +54,11 @@ void Person::sitDown()
 	mIsSittingDown_CV.notify_one();
 }
 
-void Person::setPizza(std::shared_ptr<Pizza> pizzaPtr)
+void Person::setPizza(Pizza* pizzaPtr)
 {
 	std::unique_lock<std::mutex> lk(mPersonMutex);
+	assert(pizzaPtr);
+	assert(nullptr == mPizzaPtr);
 	mPizzaPtr = pizzaPtr;
 
 	assert(nullptr != mPizzaPtr);
@@ -58,6 +67,7 @@ void Person::setPizza(std::shared_ptr<Pizza> pizzaPtr)
 	printf("[Person %d] I am Person %d, and I am happy that I received my pizza(%d)\n",
 		mId, mId,(int)(mPizzaPtr->getPizzaType()));
 
+	delete mPizzaPtr;
 	mPizzaPtr = nullptr;
 }
 
@@ -73,7 +83,7 @@ void Person::choosePizza(PizzaShop& pizzaShop)
 
 	std::hash<std::thread::id> threadIdHasher;
 
-	std::default_random_engine pizzaRandomizer((unsigned)clock() ^ threadIdHasher(std::this_thread::get_id()));
+	std::default_random_engine pizzaRandomizer((unsigned)(clock() ^ threadIdHasher(std::this_thread::get_id())));
 	mPizzaType = (PizzaType)(pizzaRandomizer()%PIZZA_TYPE_COUNT);
 
 	pizzaShop.startPizzaOrderForPerson(*this, mPizzaType.value());

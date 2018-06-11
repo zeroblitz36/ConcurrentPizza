@@ -4,7 +4,7 @@
 
 std::atomic<int> PizzaShop::sGlobalPizzaShopIdGenerator;
 
-PizzaShop::PizzaShop()
+PizzaShop::PizzaShop() noexcept
 	: mId(sGlobalPizzaShopIdGenerator++)
 {
 	
@@ -73,7 +73,7 @@ void PizzaShop::activate()
 				(int)pizzaOrder.mPizzaType,
 				ovenRef.get().getId());
 			
-			bool b = ovenRef.get().startPizzaIfEmpty(std::make_shared<Pizza>(
+			bool b = ovenRef.get().startPizzaIfEmpty(new Pizza(
 				personRef, pizzaOrder.mPizzaType
 			));
 			assert(b);
@@ -81,10 +81,10 @@ void PizzaShop::activate()
 		else if (!mFinishedPizzasQueue.isEmpty())
 		{
 			printf("[PizzaShop %d] A pizza was finished!\n", mId);
-			std::optional<std::shared_ptr<Pizza>> pizzaPtrOpt = mFinishedPizzasQueue.getAndPop();
+			std::optional<Pizza*> pizzaPtrOpt = mFinishedPizzasQueue.getAndPop();
 			assert(pizzaPtrOpt.has_value());
 
-			std::shared_ptr<Pizza> pizzaPtr = pizzaPtrOpt.value();
+			Pizza* pizzaPtr = pizzaPtrOpt.value();
 
 			Person& person = pizzaPtr->getPersonRef();
 			person.setPizza(pizzaPtr);
@@ -95,7 +95,8 @@ void PizzaShop::activate()
 void PizzaShop::addPersonToQueue(Person& person)
 {
 	std::unique_lock<std::mutex> lk(mPizzaShopMutex);
-	int personQueueLength = mPersonQueue.push(person);
+	size_t personQueueLength = mPersonQueue.push(person);
+	assert(personQueueLength > 0);
 	if (1 == personQueueLength) {
 		printf("[PizzaShop %d] There is a brand new customer ! Wake up the lazy waiter to serve him/her\n", mId);
 		lk.unlock();
@@ -104,16 +105,13 @@ void PizzaShop::addPersonToQueue(Person& person)
 	else if(personQueueLength > 1){
 		printf("[PizzaShop %d] There are already people at the line. They will have to wait\n", mId);
 	}
-	else {
-		printf("[PizzaShop %d] ERROR: mPersonQueue push returned invalid value %d\n", personQueueLength, mId);
-	}
 }
 
 void PizzaShop::startPizzaOrderForPerson(Person& person, PizzaType pizzaType)
 {
 	std::unique_lock<std::mutex> lk(mPizzaShopMutex);
 
-	int pizzaOrderQueueLength = mPizzaOrderQueue.push({ person,pizzaType });
+	size_t pizzaOrderQueueLength = mPizzaOrderQueue.push({ person,pizzaType });
 	assert(pizzaOrderQueueLength > 0);
 	if (1 == pizzaOrderQueueLength) {
 		printf("[PizzaShop %d] There is a brand new pizza order ! Wake up the lazy waiter to take it\n", mId);
@@ -125,10 +123,10 @@ void PizzaShop::startPizzaOrderForPerson(Person& person, PizzaType pizzaType)
 	}
 }
 
-void PizzaShop::addFinishedPizza(std::shared_ptr<Pizza> pizzaPtr)
+void PizzaShop::addFinishedPizza(Pizza* pizzaPtr)
 {
 	std::unique_lock<std::mutex> lk(mPizzaShopMutex);
-	int finishedPizzaQueueLength = mFinishedPizzasQueue.push(pizzaPtr);
+	size_t finishedPizzaQueueLength = mFinishedPizzasQueue.push(pizzaPtr);
 	assert(finishedPizzaQueueLength > 0);
 	if (1 == finishedPizzaQueueLength) {
 		printf("[PizzaShop %d] There is a brand new finished pizza ! Wake up the lazy waiter to take it\n", mId);
@@ -143,7 +141,7 @@ void PizzaShop::addFinishedPizza(std::shared_ptr<Pizza> pizzaPtr)
 void PizzaShop::addAvailableOven(Oven & oven)
 {
 	std::unique_lock<std::mutex> lk(mPizzaShopMutex);
-	int availableOvenQueueLength = mFreeOvenCollection.push(oven);
+	size_t availableOvenQueueLength = mFreeOvenCollection.push(oven);
 	assert(availableOvenQueueLength > 0);
 	if (1 == availableOvenQueueLength) {
 		printf("[PizzaShop %d] There is an oven that is now available !\n", mId);

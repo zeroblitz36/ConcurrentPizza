@@ -6,12 +6,12 @@ class PizzaShop;
 class Person
 {
 public:
-	Person();
+	Person() noexcept;
 	~Person();
 	void activate(PizzaShop& pizzaShop);
 	int getId() const;
 	void sitDown();
-	void setPizza(std::shared_ptr<Pizza> pizzaPtr);
+	void setPizza(Pizza* pizzaPtr);
 protected:
 	void choosePizza(PizzaShop& pizzaShop);
 private:
@@ -22,5 +22,5 @@ private:
 	std::condition_variable mIsSittingDown_CV;
 
 	std::optional<PizzaType> mPizzaType;
-	std::shared_ptr<Pizza> mPizzaPtr;
+	Pizza* mPizzaPtr;
 };

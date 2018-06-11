@@ -5,7 +5,8 @@
 std::atomic<int> Oven::sGlobalOvenIdGenerator;
 
 Oven::Oven(PizzaShop& pizzaShopRef)
-	: mPizzaShopRef(pizzaShopRef)
+	: mpPizza(nullptr)
+	, mPizzaShopRef(pizzaShopRef)
 	, mId(sGlobalOvenIdGenerator++)
 {
 
@@ -22,7 +23,7 @@ bool Oven::isEmpty()
 	return nullptr != mpPizza;
 }
 
-bool Oven::startPizzaIfEmpty(std::shared_ptr<Pizza> pizzaPtr)
+bool Oven::startPizzaIfEmpty(Pizza* pizzaPtr)
 {
 	std::unique_lock<std::mutex> lk(mOvenMutex);
 	if (nullptr != mpPizza) {
@@ -53,6 +54,9 @@ void Oven::activate()
 		});
 
 		assert(PizzaStatus::JustDough == mpPizza->getPizzaStatus());
+		//added this assert so that the Code Analyzer stop complaining that there is no
+		//NULL check for 'mpPizza'
+		assert(nullptr != mpPizza);
 
 		//it's safe to start working on the pizza
 		using namespace std::chrono_literals;
